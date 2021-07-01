@@ -1,9 +1,15 @@
 from flask import Flask, render_template
-
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField
+from wtforms.validators import DataRequired
 # Create a Flask instance
 app = Flask(__name__)
+app.config['SECRET_KEY'] = "my super secret"
 
-
+# Create a form class
+class NamerForm(FlaskForm):
+    name = StringField("What is your Name", validators=[DataRequired()])
+    submit = SubmitField("Submit")
 #safe
 #capitalize
 #lower
@@ -34,3 +40,4 @@ def page_not_found(e):
 @app.errorhandler(500)
 def page_not_found(e):
     return render_template("500.html"), 500
+

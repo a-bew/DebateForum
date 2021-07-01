@@ -1,19 +1,27 @@
-<h1>Hello world</h1>
+{% extends 'base.html' %}
 
-<p>Hello {{ first_name }}</p>
+{% block content %}
 
-<p>Hello {{ stuff|safe }}</p>
+    <h1>Hello world</h1>
 
-{% for topping in favorite_pizza %}
+    <p>Hello {{ first_name }}</p>
 
-    if {% if topping == 41 %}
-        {{ topping + 100}}<br>
+    <p>Hello {{ stuff|safe }}</p>
 
-    {% else %}
+    {% for topping in favorite_pizza %}
+
+        {% if topping == 41 %}
+            {{ topping + 100}}<br>
+
+        {% else %}
+            {{ topping }}<br>
+
+        {% endif %}
         {{ topping }}<br>
+    {% endfor %}
 
-    {% endif %}
-    {{ topping }}<br>
-{% endfor %}
+    {{ favorite_pizza.0 }}
 
-{{ favorite_pizza.0 }}
+
+
+{% endblock %}
