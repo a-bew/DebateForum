@@ -17,6 +17,13 @@ Mac installation guide; https://flaviocopes.com/mysql-how-to-install/
 
 Utuntu 20.4 installation guide; https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-20-04?fbclid=IwAR0Y3ocKmn8srWdlxb3IbutqDyuV2UGvh_NTCoFZS2vu-AhulcyCtx8myRU
 
+## Additional Useful MySQL command for mac
+
+sudo chown -R \_mysql:mysql /usr/local/var/mysql
+
+Start Mysql Server - sudo mysql.server start
+Access Mysql command on the terminal - sudo mysql -u root -p
+
 ## Create MySQL db on using the following lines of code
 
 ```
