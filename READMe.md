@@ -5,11 +5,11 @@ export FLASK_APP=server.py
 
 ## Set up version control
 
-$ git config --global user.name "Your Name"
-$ git config --global user.email "you@youraddress.com"
-$ git config --global push.default matching
-$ git config --global alias.co checkout
-$ git init
+> git config --global user.name "Your Name"
+> git config --global user.email "you@youraddress.com"
+> git config --global push.default matching
+> git config --global alias.co checkout
+> git init
 
 ## Install MySQL locally - use the following links to get started
 
