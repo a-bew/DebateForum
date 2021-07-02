@@ -13,9 +13,9 @@ $ git init
 
 ## Install MySQL locally - use the following links to get started
 
-# Mac installation guide; https://flaviocopes.com/mysql-how-to-install/
+Mac installation guide; https://flaviocopes.com/mysql-how-to-install/
 
-# Utuntu 20.4 installation guide; https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-20-04?fbclid=IwAR0Y3ocKmn8srWdlxb3IbutqDyuV2UGvh_NTCoFZS2vu-AhulcyCtx8myRU
+Utuntu 20.4 installation guide; https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-20-04?fbclid=IwAR0Y3ocKmn8srWdlxb3IbutqDyuV2UGvh_NTCoFZS2vu-AhulcyCtx8myRU
 
 ## Create MySQL db on using the following lines of code
 
