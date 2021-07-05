@@ -16,14 +16,27 @@ app = Flask(__name__)
 # SECRET KEY
 app.config['SECRET_KEY'] = "my super secret"
 
+# DATABASE IS CREATED IF NOT EXIST
+mysql_connect.create_mysql_db()
+
+# DB TABLES ARE CREATED IF NOT EXIST
+mysql_connect.AdminsTable()
+mysql_connect.UserAuth()
+mysql_connect.TopicTable()
+mysql_connect.TopicUsers()
+mysql_connect.ClaimTable()
+mysql_connect.Replies()
+
+
 class TopicForm(FlaskForm):
     topic = StringField("Add New Topic", validators=[DataRequired()])
     name = StringField("Add New Topic", validators=[DataRequired()])
     time = DateTimeField(validators=[DataRequired()])
     submit = SubmitField("Submit")
 
-
 # Create a route decorator
+
+
 @app.route('/')
 def index():
     first_name = "john"
@@ -31,6 +44,7 @@ def index():
 
     favorite_pizza = ["Pepperani", "Cheese", "Orange", "Onions", 41]
     return render_template("index.html", first_name=first_name, stuff=stuff, favorite_pizza=favorite_pizza)
+
 
 @app.route('/login/', methods=["GET", "POST"])
 def login_page():
@@ -45,17 +59,15 @@ def login_page():
             else:
                 error = "Invalid credentials. Try Again"
 
-        return render_template("login.html", error = error)
+        return render_template("login.html", error=error)
     except Exception as e:
-        return render_template("login.html", error = error)
+        return render_template("login.html", error=error)
 
 
 @app.route('/register/', methods=["GET", "POST"])
 def register_page():
-    mysql_connect.create_connection()
     return ("okay")
 # Create a form class
-
 
 
 @app.route('/user/<name>')
