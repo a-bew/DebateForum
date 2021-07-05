@@ -1,36 +1,20 @@
-from flask import Flask, render_template, flash
+from os import error
+from flask import Flask, render_template, flash, request
+from flask.helpers import url_for
 from flask_wtf import FlaskForm
+from werkzeug.utils import redirect
 from wtforms import StringField, SubmitField
 from wtforms.fields.core import DateTimeField, IntegerField
 from wtforms.validators import DataRequired
 from werkzeug.security import generate_password_hash, check_password_hash
-from flaskext.mysql import MySQL
+from db import mysql_connect
+from config import credentials
 
 # Create a Flask instance
 app = Flask(__name__)
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'password123'
-app.config['MYSQL_DB'] = 'DebateForumDB'
 
 # SECRET KEY
 app.config['SECRET_KEY'] = "my super secret"
-
-# Initialize the db
-db = MySQL(app)
-
-# Creating a connection cursor
-# cursor = db.connection.cursor()
-
-# Create a form class
-
-
-class TopicForm(FlaskForm):
-    topic = StringField("Add New Topic", validators=[DataRequired()])
-    author = IntegerField("Add New Topic", validators=[DataRequired()])
-    time = DateTimeField(validators=[DataRequired()])
-    submit = SubmitField("Submit")
-
 
 class TopicForm(FlaskForm):
     topic = StringField("Add New Topic", validators=[DataRequired()])
@@ -38,17 +22,8 @@ class TopicForm(FlaskForm):
     time = DateTimeField(validators=[DataRequired()])
     submit = SubmitField("Submit")
 
-# safe
-# capitalize
-# lower
-# upper
-# title
-# trim
-# striptags
 
 # Create a route decorator
-
-
 @app.route('/')
 def index():
     first_name = "john"
@@ -56,6 +31,31 @@ def index():
 
     favorite_pizza = ["Pepperani", "Cheese", "Orange", "Onions", 41]
     return render_template("index.html", first_name=first_name, stuff=stuff, favorite_pizza=favorite_pizza)
+
+@app.route('/login/', methods=["GET", "POST"])
+def login_page():
+    error = ''
+    try:
+        if request.method == 'POST':
+            attempted_username = request.form["username"]
+            attempted_password = request.form['password']
+
+            if attempted_username == 'admin' and attempted_password == 'password':
+                return redirect(url_for('dashboard'))
+            else:
+                error = "Invalid credentials. Try Again"
+
+        return render_template("login.html", error = error)
+    except Exception as e:
+        return render_template("login.html", error = error)
+
+
+@app.route('/register/', methods=["GET", "POST"])
+def register_page():
+    mysql_connect.create_connection()
+    return ("okay")
+# Create a form class
+
 
 
 @app.route('/user/<name>')

@@ -2,3 +2,5 @@ env/
 create_db.py
 init_db.py
 schema.sql
+config/
+note.txt
