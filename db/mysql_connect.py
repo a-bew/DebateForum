@@ -1,22 +1,23 @@
 from logging import error
 import mysql.connector
-from flaskext.mysql import MySQL
 from config import credentials
 
-databaseSet = "DebateForumDB3"
+databaseSet = "DebateForumDB"
+
 mysql_credentials = credentials.db_credentials
 
-def create_mysql_db(db_credential):
+
+def create_mysql_db():
     try:
-        [host, user, password, database] = db_credential
+        [host, user, passd, database] = mysql_credentials
         mydb = mysql.connector.connect(
             host=host,
             user=user,
-            password=password,
+            password=passd,
             auth_plugin='mysql_native_password'
         )
         my_cursor = mydb.cursor()
-        my_cursor.execute("CREATE DATABASE DebateForumDB3")
+        my_cursor.execute("CREATE DATABASE IF NOT EXISTS DebateForumDB")
         my_cursor.execute("SHOW DATABASES")
         for db in my_cursor:
             print(db)
@@ -26,7 +27,7 @@ def create_mysql_db(db_credential):
 
 
 def create_connection():
-    
+
     host, user, passd, db = mysql_credentials
 
     """ create a database connection to the MSQLite database
@@ -37,7 +38,8 @@ def create_connection():
     :return: Cursor object, Connection object or None
     """
     try:
-        conn = mysql.connector.connect(host=host,user=user,password=passd,database=databaseSet)
+        conn = mysql.connector.connect(
+            host=host, user=user, password=passd, database=databaseSet)
         c = conn.cursor()
         return c, conn
     except error as er:
@@ -46,19 +48,252 @@ def create_connection():
     return None
 
 
-class UserAuthSqliteDb:
-    def __init__(self, db_credential):
-        self.create_db()
-        self.db_credential = db_credential
+class AdminsTable:
+    def __init__(self):
+        self.create_table()
+        print("-------Working")
 
-    def recipient_exists(self, to_add):
-        conn = create_connection(self.db_credential)
+    def create_table(self):
+        """
+        create table Forum, Forum can add topics
+
+        """
+        c, conn = create_connection()
+
+        # conn = create_connection(db_name)
         #conn.text_factory = bytes
 
-        # with self.conn:
-        #     cursor = conn.execute("SELECT user_id FROM users WHERE username = ?", to_add)
-        #     result = cursor.fetchone()
-        #     if result:
-        #         return True
-        #     else:
-        #         return False     
+        with conn:
+
+            c.execute(
+                ''' SELECT count(*) FROM information_schema.TABLES WHERE (TABLE_SCHEMA ='DebateForumDB') AND (TABLE_NAME = 'Admins') ''')
+            # if the count is 1, then table exists
+            # print("count(*)", cursor)
+            if c.fetchone()[0] > 0:
+                #print('Table exists.')
+                return True
+
+            c.execute(''' CREATE TABLE Admins (
+                id INTEGER NOT NULl AUTO_INCREMENT,
+                createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                name TEXT,
+                PRIMARY KEY (id)
+            );''')
+
+            print("users Table created successfully")
+
+
+class UserAuth:
+    '''
+        user can create accounts with a name and password and post messages
+    '''
+
+    def __init__(self):
+        self.create_table()
+
+    def create_table(self):
+        """
+        create table UserAuth, 
+
+        """
+        c, conn = create_connection()
+
+        # conn = create_connection(db_name)
+        #conn.text_factory = bytes
+
+        with conn:
+
+            c.execute(
+                ''' SELECT count(*) FROM information_schema.TABLES WHERE (TABLE_SCHEMA ='DebateForumDB') AND (TABLE_NAME = 'Users') ''')
+            # if the count is 1, then table exists
+            if c.fetchone()[0] > 0:
+                #print('Table exists.')
+                return True
+
+            c.execute(''' CREATE TABLE Users (
+                id INTEGER PRIMARY KEY AUTO_INCREMENT,
+                createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                username VARCHAR(100) NOT NULL,
+                password TEXT
+            );''')
+
+            # conn.execute('''
+            #     CREATE TABLE IF NOT EXISTS users
+            #     (
+            #         user_id INTEGER PRIMARY KEY,
+            #         username TEXT,
+            #         password TEXT,
+            #         online INTEGER,
+            #         onlineAt DATETIME,
+            #         created DATETIME DEFAULT CURRENT_TIMESTAMP );'''
+            # )
+            print("users Table created successfully")
+
+
+class TopicTable:
+    def __init__(self):
+        self.create_table()
+
+    def create_table(self):
+        """
+        create table Topic, Topic is a child or subset of forum
+
+        """
+        c, conn = create_connection()
+
+        # conn = create_connection(db_name)
+        #conn.text_factory = bytes
+
+        with conn:
+
+            c.execute(
+                ''' SELECT count(*) FROM information_schema.TABLES WHERE (TABLE_SCHEMA ='DebateForumDB') AND (TABLE_NAME = 'Topics') ''')
+            # if the count is 1, then table exists
+            if c.fetchone()[0] > 0:
+                #print('Table exists.')
+                return True
+
+            c.execute('''CREATE TABLE Topics (
+                    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+                    user_id INTEGER NOT NULL,
+                    createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    topic VARCHAR(200) NOT NULL,
+                    CONSTRAINT Constr_Topics_Users_fk
+                        FOREIGN KEY (user_id) REFERENCES Users (id)
+                );
+            ''')
+
+            print("Topics Table created successfully")
+
+
+class TopicUsers:
+    def __init__(self):
+        self.create_table()
+
+    def create_table(self):
+        """
+        create table Topic, Topic is a child or subset of forum
+        this table use composite primary key (user_id, topic_id)
+        """
+        c, conn = create_connection()
+
+        # conn = create_connection(db_name)
+        #conn.text_factory = bytes
+
+        with conn:
+
+            c.execute(
+                ''' SELECT count(*) FROM information_schema.TABLES WHERE (TABLE_SCHEMA ='DebateForumDB') AND (TABLE_NAME = 'TopicUsers') ''')
+            # if the count is 1, then table exists
+            if c.fetchone()[0] > 0:
+                #print('Table exists.')
+                return True
+
+            c.execute('''CREATE TABLE TopicUsers (
+                    PRIMARY KEY (user_id, topic_id),
+                    user_id INTEGER NOT NULL,
+                    topic_id INTEGER NOT NULL,
+                    createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    
+                    CONSTRAINT Constr_TopicUsers_Users_fk
+                        FOREIGN KEY (user_id) REFERENCES Users (id)
+                        ON DELETE CASCADE ON UPDATE CASCADE,
+
+                    CONSTRAINT Constr_TopicUsers_Topics_fk
+                        FOREIGN KEY (topic_id) REFERENCES Topics (id)
+                        ON DELETE CASCADE ON UPDATE CASCADE
+                );
+            ''')
+
+            print("TopicUsers Table created successfully")
+
+
+class ClaimTable:
+    '''
+        claims(messages) are linked to topics
+        claim(s) is(are) posted by users
+        claims has one or more replies
+    '''
+
+    def __init__(self):
+        self.create_table()
+
+    def create_table(self):
+        """
+        create table Claims, 
+        Each Claim Has a heading message(topic_id)
+
+        """
+        c, conn = create_connection()
+
+        # conn = create_connection(db_name)
+        #conn.text_factory = bytes
+
+        # FOREIGN KEY (user_id) REFERENCES Users (id)
+        # FOREIGN KEY (topic_id) REFERENCES Topics (id)
+
+        with conn:
+            c.execute(
+                ''' SELECT count(*) FROM information_schema.TABLES WHERE (TABLE_SCHEMA ='DebateForumDB') AND (TABLE_NAME = 'Claims') ''')
+            # if the count is 1, then table exists
+            if c.fetchone()[0] > 0:
+                #print('Table exists.')
+                return True
+
+            c.execute('''CREATE TABLE Claims (
+                    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+                    user_id INTEGER NOT NULL,
+                    topic_id INTEGER NOT NULL,  
+                    createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    heading VARCHAR(200) NOT NULL,
+                    message TEXT NOT NULL,
+                    CONSTRAINT Constr_Claims_TopicUsers_fk
+                        FOREIGN KEY (user_id, topic_id) REFERENCES TopicUsers
+                            (user_id, topic_id)
+                );
+            ''')
+
+            print("Claims Table created successfully")
+
+
+class Replies:
+    def __init__(self):
+        self.create_table()
+
+    def create_table(self):
+        """
+            create table MessagesTable, 
+            Each Reply Has a user(user_id) and claim(claim_id)
+
+        """
+        c, conn = create_connection()
+
+        # conn = create_connection(db_name)
+        #conn.text_factory = bytes
+
+        with conn:
+            c.execute(
+                ''' SELECT count(*) FROM information_schema.TABLES WHERE (TABLE_SCHEMA ='DebateForumDB') AND (TABLE_NAME = 'Replies') ''')
+
+            # if the count is 1, then table exists
+            if c.fetchone()[0] > 0:
+                #print('Table exists.')
+                return True
+
+            c.execute('''CREATE TABLE Replies (
+                    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+                    claim_id INTEGER NOT NULL,
+                    createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,                    
+                    reply_text TEXT NOT NULL,
+                    FOREIGN KEY (claim_id) REFERENCES Claims (id)
+
+                );
+            ''')
+
+            print("Replies Table created successfully")
