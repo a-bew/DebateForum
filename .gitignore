@@ -4,3 +4,6 @@ init_db.py
 schema.sql
 config/
 note.txt
+
+__pycache__/
+db/__pycache__/
