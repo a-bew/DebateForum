@@ -261,6 +261,92 @@ class ClaimTable:
             print("Claims Table created successfully")
 
 
+class TagTable:
+
+    def __init__(self):
+        self.create_table()
+
+    def create_table(self):
+        """
+        create table Tags, 
+
+        """
+        c, conn = create_connection()
+
+        # conn = create_connection(db_name)
+        #conn.text_factory = bytes
+
+        with conn:
+
+            c.execute(
+                ''' SELECT count(*) FROM information_schema.TABLES WHERE (TABLE_SCHEMA ='DebateForumDB') AND (TABLE_NAME = 'Tags') ''')
+            # if the count is 1, then table exists
+            if c.fetchone()[0] > 0:
+                #print('Table exists.')
+                return True
+
+            c.execute(''' CREATE TABLE Tags (
+                id INTEGER PRIMARY KEY AUTO_INCREMENT,
+                createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                Title Text NOT NULL
+            );''')
+
+            # conn.execute('''
+            #     CREATE TABLE IF NOT EXISTS users
+            #     (
+            #         user_id INTEGER PRIMARY KEY,
+            #         username TEXT,
+            #         password TEXT,
+            #         online INTEGER,
+            #         onlineAt DATETIME,
+            #         created DATETIME DEFAULT CURRENT_TIMESTAMP );'''
+            # )
+            print("Tags Table created successfully")
+
+
+class ClaimTagTable:
+    def __init__(self):
+        self.create_table()
+
+    def create_table(self):
+        """
+        create table Topic, Topic is a child or subset of forum
+        this table use composite primary key (user_id, topic_id)
+        """
+        c, conn = create_connection()
+
+        # conn = create_connection(db_name)
+        #conn.text_factory = bytes
+
+        with conn:
+
+            c.execute(
+                ''' SELECT count(*) FROM information_schema.TABLES WHERE (TABLE_SCHEMA ='DebateForumDB') AND (TABLE_NAME = 'ClaimTags') ''')
+            # if the count is 1, then table exists
+            if c.fetchone()[0] > 0:
+                #print('Table exists.')
+                return True
+
+            c.execute('''CREATE TABLE ClaimTags (
+                    PRIMARY KEY (claim_id, tag_id),
+                    claim_id INTEGER NOT NULL,
+                    tag_id INTEGER NOT NULL,
+                    createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    
+                    CONSTRAINT Constr_ClaimTag_Claim_fk
+                        FOREIGN KEY (claim_id) REFERENCES Claims (id),
+
+                    CONSTRAINT Constr_ClaimTag_Tag_fk
+                        FOREIGN KEY (tag_id) REFERENCES Tags (id)
+                        
+                );
+            ''')
+
+            print("ClaimTags Table created successfully")
+
+
 class Replies:
     def __init__(self):
         self.create_table()
@@ -277,6 +363,7 @@ class Replies:
         #conn.text_factory = bytes
 
         with conn:
+            c.execute('''DROP TABLE IF EXISTS Replies;''')
             c.execute(
                 ''' SELECT count(*) FROM information_schema.TABLES WHERE (TABLE_SCHEMA ='DebateForumDB') AND (TABLE_NAME = 'Replies') ''')
 
@@ -290,10 +377,50 @@ class Replies:
                     claim_id INTEGER NOT NULL,
                     createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,                    
+                    type ENUM('CLARIFICATION', 'SUPPORTING ARGUMENT', 'COUNTERARGUMENT'),
                     reply_text TEXT NOT NULL,
                     FOREIGN KEY (claim_id) REFERENCES Claims (id)
-
                 );
             ''')
 
             print("Replies Table created successfully")
+
+
+class ReReplies:
+    def __init__(self):
+        self.create_table()
+
+    def create_table(self):
+        """
+            create table MessagesTable, 
+            Each Reply Has a user(user_id) and claim(claim_id)
+
+        """
+
+        c, conn = create_connection()
+
+        # conn = create_connection(db_name)
+        #conn.text_factory = bytes
+
+        with conn:
+            c.execute('''DROP TABLE IF EXISTS ReReplies;''')
+            c.execute(
+                ''' SELECT count(*) FROM information_schema.TABLES WHERE (TABLE_SCHEMA ='DebateForumDB') AND (TABLE_NAME = 'ReReplies') ''')
+
+            # if the count is 1, then table exists
+            if c.fetchone()[0] > 0:
+                #print('Table exists.')
+                return True
+
+            c.execute('''CREATE TABLE ReReplies (
+                    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+                    reply_id INTEGER NOT NULL,
+                    createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,                    
+                    type ENUM('EVIDENCE', 'SUPPORT', 'REBUTTAL'),
+                    re_reply_text TEXT NOT NULL,
+                    FOREIGN KEY (reply_id) REFERENCES Claims (id)
+                );
+            ''')
+
+            print("ReReplies Table created successfully")

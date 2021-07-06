@@ -58,3 +58,37 @@ Mac/Ubuntu installation guide; https://flaviocopes.com/mysql-how-to-install/
         brew services start mysql
 
 ```
+
+# MYSQL Tables Relations
+
+```
+    Table: Admins
+    Columns: id(pk), name
+
+    Table: Users
+    Columns: id(pk), createdAt, updatedAt, username, password
+
+    Table: Topics
+    Columns: id(pk), createdAt, updatedAt, user_id(fk), topic
+
+    Table: TopicUsers
+    Columns: (user_id, topic_id)(pk), createdAt, updatedAt, user_id(fk), user_id(fk)
+
+    Table: Claims
+    Columns: id(pk), createdAt, updatedAt, (user_id, topic_id)(fk), heading, message
+
+    Table: Tag
+    Columns: id(pk), Title
+
+    Table: ItemTag
+    Columns: (claim_id, tag_id)(pk), createdAt, updatedAt, claim_id(fk), tag_id(fk)
+
+    NB: Claims can be related to another(one or more) as opposed to equivalent
+
+    Table: Replies
+    Columns: id(pk), createdAt, updatedAt, type(ENUM), reply_text, (claim_id)(fk)
+
+    Table: ReReplies
+    Columns: id(pk), createdAt, updatedAt, type(ENUM), re_reply_text, (reply_id)(fk)
+
+```

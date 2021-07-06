@@ -7,7 +7,7 @@ from wtforms import StringField, SubmitField
 from wtforms.fields.core import DateTimeField, IntegerField
 from wtforms.validators import DataRequired
 from werkzeug.security import generate_password_hash, check_password_hash
-from db import mysql_connect
+from db_script import mysql_connect
 from config import credentials
 
 # Create a Flask instance
@@ -26,6 +26,9 @@ mysql_connect.TopicTable()
 mysql_connect.TopicUsers()
 mysql_connect.ClaimTable()
 mysql_connect.Replies()
+mysql_connect.ReReplies()
+mysql_connect.TagTable()
+mysql_connect.ClaimTagTable()
 
 
 class TopicForm(FlaskForm):
