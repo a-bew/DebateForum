@@ -1,5 +1,5 @@
 from os import error
-from flask import Flask, render_template, flash, request
+from flask import Flask, render_template, flash, request, jsonify, session, g, redirect
 from flask.helpers import url_for
 from flask_wtf import FlaskForm
 from werkzeug.utils import redirect
@@ -8,7 +8,7 @@ from wtforms.fields.core import DateTimeField, IntegerField
 from wtforms.validators import DataRequired
 from werkzeug.security import generate_password_hash, check_password_hash
 from db_script import mysql_connect
-from config import credentials
+from functools import wraps
 
 # Create a Flask instance
 app = Flask(__name__)
@@ -21,15 +21,34 @@ mysql_connect.create_mysql_db()
 
 # DB TABLES ARE CREATED IF NOT EXIST
 mysql_connect.AdminsTable()
-mysql_connect.UserAuth()
+
+UserAuth = mysql_connect.UserAuth()
 mysql_connect.TopicTable()
-mysql_connect.TopicUsers()
+# mysql_connect.UserTopics()
 mysql_connect.ClaimTable()
 mysql_connect.Replies()
 mysql_connect.ReReplies()
 mysql_connect.TagTable()
 mysql_connect.ClaimTagTable()
 
+class Users():
+    def __init__(self) -> None:
+        self.username = None
+        self.password_hash = None
+    
+    @property
+    def password(self):
+        raise AttributeError('password is not a readable attribute!')
+
+    def __repr__(self) -> str:
+        return f"<Name {self.username}>"
+
+    @password.setter
+    def password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def verify_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
 class TopicForm(FlaskForm):
     topic = StringField("Add New Topic", validators=[DataRequired()])
@@ -37,39 +56,84 @@ class TopicForm(FlaskForm):
     time = DateTimeField(validators=[DataRequired()])
     submit = SubmitField("Submit")
 
-# Create a route decorator
-
+@app.before_request
+def before_request():
+    g.user = None
+    if 'user_id' in session:
+        user = UserAuth.getUser(session['user_id'])
+        print("user", user)
+        g.user = user
 
 @app.route('/')
 def index():
+    if g.user:
+        user = g.user
+    else:
+        user = None
     first_name = "john"
     stuff = "This is <strong>Bold</strong> text"
-
     favorite_pizza = ["Pepperani", "Cheese", "Orange", "Onions", 41]
-    return render_template("index.html", first_name=first_name, stuff=stuff, favorite_pizza=favorite_pizza)
 
+    return render_template("index.html", first_name=first_name, stuff=stuff, favorite_pizza=favorite_pizza, user= user)
+    # return jsonify({})
 
 @app.route('/login/', methods=["GET", "POST"])
 def login_page():
     error = ''
-    try:
-        if request.method == 'POST':
-            attempted_username = request.form["username"]
-            attempted_password = request.form['password']
+    
+    # if request.method == 'POST':
+    if request.json:
+        session.pop('user_id', None)
+        incoming_data = request.json
 
-            if attempted_username == 'admin' and attempted_password == 'password':
-                return redirect(url_for('dashboard'))
-            else:
-                error = "Invalid credentials. Try Again"
+        username = incoming_data["username"]
+        password = incoming_data['password']
 
-        return render_template("login.html", error=error)
-    except Exception as e:
-        return render_template("login.html", error=error)
+        
+            #Query the database to get password
+        user_name = (username,)
+        hashed_password = UserAuth.get_password(user_name)
+        if hashed_password and check_password_hash(hashed_password, password):
+            session["user_id"] = user_name
+            return redirect(url_for('/'))
+        return  redirect(url_for('login'))
+    return render_template("login.html")
 
 
-@app.route('/register/', methods=["GET", "POST"])
+@app.route('/register', methods=["GET", "POST"])
 def register_page():
-    return ("okay")
+    try:
+        print(request)
+        if request.method == 'POST':
+            incoming_data = request.json
+            username = incoming_data["username"]
+            password = incoming_data['password']
+            email = incoming_data['email']
+            print(password, username, email)
+            user_name = (username,)
+
+        # Check if user already exist in db
+        if UserAuth.checkAlreadyExist(user_name):
+            return jsonify({"msg": "Username already exist!"}), 302
+
+        user = Users()
+        user.password = password
+        hashed_password = user.password_hash
+
+        status = UserAuth.insert_user(username, hashed_password, email)
+
+        if status: return jsonify({"msg": "Signup successful"}), 201
+
+        return jsonify({"msg": "Signup Fail!"}), 404
+
+        # return render_template("login.html", error = error)
+    except Exception as e:
+        # return render_template("login.html", error = error)
+        return jsonify({error: e.with_traceback()}), 500
+
+
+    # mysql_connect.create_connection()
+    # return ("okay")
 # Create a form class
 
 

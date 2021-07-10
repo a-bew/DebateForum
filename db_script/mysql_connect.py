@@ -1,6 +1,7 @@
 from logging import error
 import mysql.connector
 from config import credentials
+from datetime import datetime
 
 databaseSet = "DebateForumDB"
 
@@ -103,6 +104,9 @@ class UserAuth:
         #conn.text_factory = bytes
 
         with conn:
+            c.execute('''SET FOREIGN_KEY_CHECKS = 0''')
+            c.execute('''DROP TABLE IF EXISTS Users;''')
+            c.execute('''SET FOREIGN_KEY_CHECKS = 1;''')
 
             c.execute(
                 ''' SELECT count(*) FROM information_schema.TABLES WHERE (TABLE_SCHEMA ='DebateForumDB') AND (TABLE_NAME = 'Users') ''')
@@ -116,7 +120,8 @@ class UserAuth:
                 createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 username VARCHAR(100) NOT NULL,
-                password TEXT
+                password TEXT NOT NULL,
+                email TEXT NOT NULL
             );''')
 
             # conn.execute('''
@@ -131,6 +136,70 @@ class UserAuth:
             # )
             print("users Table created successfully")
 
+    def checkAlreadyExist(self, username):
+            c, conn = create_connection()
+            #conn.text_factory = bytes
+
+            with conn:
+                c.execute("SELECT username FROM Users WHERE username = %s", username)
+                result = c.fetchone()
+
+                if result:
+                    return True
+                else:
+                    return False    
+
+    def insert_user(self, username, password, email):
+            c, conn = create_connection()
+
+            """
+            insert user, 
+            :param username:
+            :param password:
+            :param email:
+            :return: True
+            """
+            createdAt = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+            updatedAt = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+
+            conn.text_factory = bytes
+
+            with conn:
+                c.execute('INSERT INTO Users (createdAt, updatedAt, username, password, email) VALUES (%s, %s, %s, %s, %s)', (createdAt, updatedAt, username, password, email))        
+                conn.commit()
+            print("User signed-up successfully")
+            return True
+
+    def get_password(self, username):        
+        c, conn = create_connection()
+        #conn.text_factory = bytes
+
+        with conn:
+            c.execute("SELECT password FROM users WHERE username = ?", username)
+            result = c.fetchone()
+            return result
+
+    def getUser(self, username):
+        c, conn = create_connection()
+        #conn.text_factory = bytes
+
+        with conn:
+            c.execute("SELECT * FROM users WHERE username = ?", username)
+            result = c.fetchone()
+            return result
+
+    def getUserTopics(self, user_id):
+        c, conn = create_connection()
+
+        with conn:
+            c.execute(
+                ''' SELECT U.id AS user_id, U.username AS user_name, T.topic AS topic_name, T.id AS topic_id 
+                    FROM Users U LEFT JOIN Topics T ON U.id = T.user_id
+                    WHERE T.user_id = user_id; 
+                ''') 
+
+            myresult = c.fetchone()
+            return myresult
 
 class TopicTable:
     def __init__(self):
@@ -168,49 +237,64 @@ class TopicTable:
 
             print("Topics Table created successfully")
 
-
-class TopicUsers:
-    def __init__(self):
-        self.create_table()
-
-    def create_table(self):
-        """
-        create table Topic, Topic is a child or subset of forum
-        this table use composite primary key (user_id, topic_id)
-        """
+    # One to many relationship
+    def topic_claims(self, topicId):
         c, conn = create_connection()
 
-        # conn = create_connection(db_name)
-        #conn.text_factory = bytes
-
         with conn:
-
             c.execute(
-                ''' SELECT count(*) FROM information_schema.TABLES WHERE (TABLE_SCHEMA ='DebateForumDB') AND (TABLE_NAME = 'TopicUsers') ''')
-            # if the count is 1, then table exists
-            if c.fetchone()[0] > 0:
-                #print('Table exists.')
-                return True
+                ''' SELECT T.id AS topic_id, T.username AS user_name, T.createdAt AS topic_createdAt, C.id AS claim_id, C.user_id as user_id 
+                    FROM Topics T 
+                    LEFT JOIN Claims C ON T.id = C.topic_id
+                    GROUP BY C.user_id, C.topic.id,
+                    WHERE C.topic_id = topicId; 
+                ''') 
 
-            c.execute('''CREATE TABLE TopicUsers (
-                    PRIMARY KEY (user_id, topic_id),
-                    user_id INTEGER NOT NULL,
-                    topic_id INTEGER NOT NULL,
-                    createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            myresult = c.fetchone()
+            return myresult
+            
+            
+# class UserTopics:
+#     def __init__(self):
+#         self.create_table()
+
+#     def create_table(self):
+#         """
+#         create table Topic, Topic is a child or subset of forum
+#         this table use composite primary key (user_id, topic_id)
+#         """
+#         c, conn = create_connection()
+
+#         # conn = create_connection(db_name)
+#         #conn.text_factory = bytes
+
+#         with conn:
+
+#             c.execute(
+#                 ''' SELECT count(*) FROM information_schema.TABLES WHERE (TABLE_SCHEMA ='DebateForumDB') AND (TABLE_NAME = 'TopicUsers') ''')
+#             # if the count is 1, then table exists
+#             if c.fetchone()[0] > 0:
+#                 #print('Table exists.')
+#                 return True
+
+#             c.execute('''CREATE TABLE TopicUsers (
+#                     PRIMARY KEY (user_id, topic_id),
+#                     user_id INTEGER NOT NULL,
+#                     topic_id INTEGER NOT NULL,
+#                     createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+#                     updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     
-                    CONSTRAINT Constr_TopicUsers_Users_fk
-                        FOREIGN KEY (user_id) REFERENCES Users (id)
-                        ON DELETE CASCADE ON UPDATE CASCADE,
+#                     CONSTRAINT Constr_TopicUsers_Users_fk
+#                         FOREIGN KEY (user_id) REFERENCES Users (id)
+#                         ON DELETE CASCADE ON UPDATE CASCADE,
 
-                    CONSTRAINT Constr_TopicUsers_Topics_fk
-                        FOREIGN KEY (topic_id) REFERENCES Topics (id)
-                        ON DELETE CASCADE ON UPDATE CASCADE
-                );
-            ''')
+#                     CONSTRAINT Constr_TopicUsers_Topics_fk
+#                         FOREIGN KEY (topic_id) REFERENCES Topics (id)
+#                         ON DELETE CASCADE ON UPDATE CASCADE
+#                 );
+#             ''')
 
-            print("TopicUsers Table created successfully")
-
+#             print("TopicUsers Table created successfully")
 
 class ClaimTable:
     '''
@@ -259,6 +343,22 @@ class ClaimTable:
             ''')
 
             print("Claims Table created successfully")
+
+    # Many to many relationship
+    # def getClaimTopics(self, topic_id):
+    #     c, conn = create_connection()
+
+    #     with conn: 
+    #         c.execute(
+    #             '''
+    #                 SELECT T.id, T.email, T.username, C.id AS claim_id, C.name AS claim_name
+    #                 FROM Topic T 
+    #                 JOIN user_roles on (user.id=user_roles.user_id)
+    #                 JOIN role on (role.id=user_roles.role_id);
+    #             '''
+    #         )
+
+    
 
 
 class TagTable:
@@ -336,10 +436,12 @@ class ClaimTagTable:
                     updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     
                     CONSTRAINT Constr_ClaimTag_Claim_fk
-                        FOREIGN KEY (claim_id) REFERENCES Claims (id),
+                        FOREIGN KEY (claim_id) REFERENCES Claims (id)
+                        ON DELETE RESTRICT ON UPDATE CASCADE,
 
                     CONSTRAINT Constr_ClaimTag_Tag_fk
                         FOREIGN KEY (tag_id) REFERENCES Tags (id)
+                        ON DELETE RESTRICT ON UPDATE CASCADE,
                         
                 );
             ''')

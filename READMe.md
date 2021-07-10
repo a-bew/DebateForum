@@ -8,12 +8,13 @@
 
 ## Set up version control
 
-> git config --global user.name "Your Name"
-> git config --global user.email "you@youraddress.com"
-> git config --global push.default matching
-> git config --global alias.co checkout
-> git init
-
+``` 
+ git config --global user.name "Your Name"
+ git config --global user.email "you@youraddress.com"
+ git config --global push.default matching
+ git config --global alias.co checkout
+ git init
+```
 ## Install MySQL locally - use the following links to get started
 
 Mac/Ubuntu installation guide; https://flaviocopes.com/mysql-how-to-install/
@@ -24,7 +25,7 @@ Mac/Ubuntu installation guide; https://flaviocopes.com/mysql-how-to-install/
 
 ## Start Mysql Server -
 
-` sudo mysql.server start`
+` mysql.server start`
 
 ## Access Mysql command on the terminal
 
@@ -66,13 +67,13 @@ Mac/Ubuntu installation guide; https://flaviocopes.com/mysql-how-to-install/
     Columns: id(pk), name
 
     Table: Users
-    Columns: id(pk), createdAt, updatedAt, username, password
+    Columns: id(pk), createdAt, updatedAt, username, password, email
 
     Table: Topics
-    Columns: id(pk), createdAt, updatedAt, user_id(fk), topic
+    Columns: id(pk), createdAt, updatedAt, user_id(fk), topic, description
 
-    Table: TopicUsers
-    Columns: (user_id, topic_id)(pk), createdAt, updatedAt, user_id(fk), user_id(fk)
+    <!-- Table: TopicUsers
+    Columns: (user_id, topic_id)(pk), createdAt, updatedAt, user_id(fk), user_id(fk) -->
 
     Table: Claims
     Columns: id(pk), createdAt, updatedAt, (user_id, topic_id)(fk), heading, message
@@ -92,3 +93,7 @@ Mac/Ubuntu installation guide; https://flaviocopes.com/mysql-how-to-install/
     Columns: id(pk), createdAt, updatedAt, type(ENUM), re_reply_text, (reply_id)(fk)
 
 ```
+# Wireframing
+'''
+    To draw your wireframes you can use the draw.io service, it’s free.
+'''
