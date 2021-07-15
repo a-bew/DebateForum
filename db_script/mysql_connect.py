@@ -67,6 +67,18 @@ class AdminsTable:
 
         with conn:
 
+            # c.execute('''SET FOREIGN_KEY_CHECKS = 0''')
+            # c.execute('''DROP TABLE IF EXISTS ClaimTags;''')
+            # c.execute('''DROP TABLE IF EXISTS Users;''')
+            # c.execute('''DROP TABLE IF EXISTS Topics;''')
+            # c.execute('''DROP TABLE IF EXISTS Claims;''')
+            # c.execute('''DROP TABLE IF EXISTS ClaimTags;''')
+            # c.execute('''DROP TABLE IF EXISTS Replies;''')
+            # c.execute('''DROP TABLE IF EXISTS ReReplies;''')
+
+            # c.execute('''SET FOREIGN_KEY_CHECKS = 1;''')
+
+
             c.execute(
                 ''' SELECT count(*) FROM information_schema.TABLES WHERE (TABLE_SCHEMA ='DebateForumDB') AND (TABLE_NAME = 'Admins') ''')
             # if the count is 1, then table exists
@@ -75,13 +87,13 @@ class AdminsTable:
                 #print('Table exists.')
                 return True
 
-            c.execute(''' CREATE TABLE Admins (
-                id INTEGER NOT NULl AUTO_INCREMENT,
-                createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                name TEXT,
-                PRIMARY KEY (id)
-            );''')
+            # c.execute(''' CREATE TABLE Admins (
+            #     id INTEGER NOT NULl AUTO_INCREMENT,
+            #     createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            #     updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            #     name TEXT,
+            #     PRIMARY KEY (id)
+            # );''')
 
             print("users Table created successfully")
 
@@ -222,6 +234,7 @@ class TopicTable:
         # conn = create_connection(db_name)
         #conn.text_factory = bytes
 
+
         with conn:
 
             # c.execute('''SET FOREIGN_KEY_CHECKS = 0''')
@@ -340,7 +353,6 @@ class TopicTable:
 #             ''')
 
 #             print("TopicUsers Table created successfully")
-
 
 class ClaimTable:
     '''
@@ -488,6 +500,7 @@ class ClaimTable:
     #         )
 
 
+
 class TagTable:
 
     def __init__(self):
@@ -567,6 +580,15 @@ class ClaimTagTable:
 
         with conn:
 
+            # c.execute('''ALTER TABLE ClaimTags
+            # DROP FOREIGN KEY Constr_ClaimTag_Claim_fk;''')
+            # c.execute('''ALTER TABLE ClaimTags
+            # DROP FOREIGN KEY Constr_ClaimTag_Tag_fk;''')
+            # c.execute('''SET FOREIGN_KEY_CHECKS = 0''')
+            # c.execute('''DROP TABLE IF EXISTS ClaimTags;''')
+
+            # c.execute('''SET FOREIGN_KEY_CHECKS = 1;''')
+
             c.execute(
                 ''' SELECT count(*) FROM information_schema.TABLES WHERE (TABLE_SCHEMA ='DebateForumDB') AND (TABLE_NAME = 'ClaimTags') ''')
             # if the count is 1, then table exists
@@ -575,27 +597,22 @@ class ClaimTagTable:
                 return True
 
             c.execute('''CREATE TABLE ClaimTags (
-                    PRIMARY KEY (claim_id, tag_id),
+                    id INTEGER PRIMARY KEY AUTO_INCREMENT,
                     claim_id INTEGER NOT NULL,
                     tag_id INTEGER NOT NULL,
                     createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    
-                    CONSTRAINT Constr_ClaimTag_Claim_fk
-                        FOREIGN KEY (claim_id) REFERENCES Claims (id)
-                        ON DELETE RESTRICT ON UPDATE CASCADE,
-
-                    CONSTRAINT Constr_ClaimTag_Tag_fk
-                        FOREIGN KEY (tag_id) REFERENCES Tags (id)
-                        ON DELETE RESTRICT ON UPDATE CASCADE,
+                    FOREIGN KEY (claim_id) REFERENCES Claims (id),
+                    FOREIGN KEY (tag_id) REFERENCES Tags (id)
                         
                 );
             ''')
 
             print("ClaimTags Table created successfully")
 
-    def insert_claim_tag(self, tag_id, claim_id):
 
+    def insert_claim_tag(self, tag_id, claim_id):
+        print("tag_id,-------------------------- claim_id", tag_id, claim_id)
         c, conn = create_connection()
 
         createdAt = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
@@ -604,7 +621,7 @@ class ClaimTagTable:
         with conn:
             c.execute(
                 '''INSERT INTO ClaimTags (createdAt, updatedAt, tag_id, claim_id) VALUES (%s, %s, %s, %s);
-                ''', (createdAt, updatedAt, tag_id, claim_id)
+                ''', (createdAt, updatedAt, int(tag_id), int(claim_id))
             )
 
             conn.commit()

@@ -114,7 +114,7 @@
 
               <span id = "view_all_{{claim.claim_id}}" onclick="ViewAllReplies(this)"  class="badge bg-primary ms-1 m-3 " style="align-self: flex-end; float: right;"><a onclick="" style="cursor: pointer;">View Replies</a></span>
 
-              
+              <div></div>
             </div>
         </div>
 
@@ -243,7 +243,7 @@
 
           var reply_type = select.options[select.selectedIndex].value;
 
-          // console.log(event)
+          console.log("select", replySection.nextSibling.children[0].children[1].children[2].children[0])
 
           const response = submitReply(claim_id, from_user, to_user, reply_type, reply_text)
 
@@ -281,8 +281,8 @@
 
       function submitReply(claim_id, from_user, to_user, type, reply_text) {
 
-          // console.log(claim_id, from_user, to_user, type, reply_text);
-          console.log(reply_text.value)
+          console.log(claim_id, from_user, to_user, type, reply_text);
+          // console.log(reply_text.value)
 
         return fetch("/postreply", {
               method: "post",
@@ -320,15 +320,15 @@
 
             const replySection = document.getElementById(`reply-section-${id}`);
 
+            const viewAllButton = document.getElementById(`view_all_${id}`);
+
             var children = replySection.parentNode.children;
 
-
-            for (var i = 0; i < children.length; i++) {
-                if (i > 2){
-                  children[i].remove()
-                  // removeClaimReply(children[i]);
-                }
-              }
+            // for (var i = 0; i < children.length; i++) {
+            //     if (i > 2){
+            //       children[i].remove()
+            //     }
+            //   }
             
 
             console.log("response", response);
@@ -356,10 +356,13 @@
 
                        + '</div>';
 
-                                
+                    let elm = '';                                
                        response.data.map((row, index)=>{
-                          replySection.insertAdjacentHTML("afterend",d(row))
+                          // replySection.insertAdjacentHTML("afterend",d(row))
+                          elm+=d(row)
                        })  
+
+                       viewAllButton.nextSibling.innerHTML = elm;
 
             // newReplyTextQuote = replyTextQuote[0].cloneNode(true);
 

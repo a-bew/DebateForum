@@ -22,12 +22,10 @@ mysql_connect.create_mysql_db()
 
 # DB TABLES ARE CREATED IF NOT EXIST
 mysql_connect.AdminsTable()
-
 UserAuth = mysql_connect.UserAuth()
 TopicTable = mysql_connect.TopicTable()
 # mysql_connect.UserTopics()
 ClaimTable = mysql_connect.ClaimTable()
-mysql_connect.Replies()
 Replies = mysql_connect.Replies()
 ReReplies = mysql_connect.ReReplies()
 TagTable = mysql_connect.TagTable()
@@ -234,7 +232,8 @@ def show_single_topic():
         if (tags):
             for tag in tags:
                 tagId = TagTable.insert_tag(tag)
-                ClaimTagTable.insert_claim_tag(resultId, tagId)
+                print(resultId, tagId)
+                ClaimTagTable.insert_claim_tag(tagId, resultId)
                 done = True
             # claim_tags
         else:
