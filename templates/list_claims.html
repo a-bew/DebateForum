@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- 
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div> -->
+
+<div class='container-fluid'>
+    
+    <div class="row" >
+        <div class="col-md-3">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Forum</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ topic }}</li>
+                </ol>
+            </nav>
+
+            <button id="clickShowClaim" onclick="showClaimForm()" type="button" class="btn btn-primary">
+                Add Claims <span class="badge bg-secondary">4</span>
+            </button>
+
+        </div>
+
+            <form method="POST" class="col-md-9" style="float: right;" id="claim_form" >
+                <h4>Add Claims</h4>
+                <div class="mb-3">
+                  <!-- <label for="claim_heading" class="form-label">Heading</label> -->
+                  <input type="text" class="form-control" id="claim_heading" name="claim_heading" placeholder="Heading" aria-describedby="emailHelp">
+                </div>
+                <div class="mb-3">
+                  <!-- <label for="claim_message" class="form-label">Message</label> -->
+                  <textarea class="form-control" id="claim_message" name="claim_message" placeholder="Message"></textarea>
+                </div>
+                <div class="mb-3">
+                    <!-- <label for="claim_heading" class="form-label">Tags</label> -->
+                    <input type="text" class="form-control" id="claim_tags" name="claim_tags" placeholder="Add Comma Seperated Tags E.g tag1,tag2,tag3" aria-describedby="emailHelp">
+                  </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+                 
+                <button id='cancel-btn' type="submit" class="btn btn-primary">Cancel</button>
+                
+            </form>
+        
+        </div>
+
+      <br />
+
+    {% include 'lists/claimCards.html' %}
+    
+{% block script %}
+
+<script src="{{ url_for('static', filename='js/script.js')}}"></script>
+
+
+
+<script>
+
+    function showClaimForm() {
+        document.getElementById("claim_form").style.display = "block"
+        document.getElementById("clickShowClaim").style.display = "none"
+    }
+    
+    $(document).ready(function () {
+
+            $("#cancel-btn").click(function (event) {
+                event.preventDefault();
+                document.getElementById("claim_form").style.display = "none"
+                document.getElementById("clickShowClaim").style.display = "block"
+
+                // alert("do what ever you want");
+            });
+
+            // Hide Add Claims Form
+            document.getElementById("claim_form").style.display = "none"
+            document.getElementById("clickShowClaim").style.display = "block"
+
+    });
+
+
+
+</script>
+
+{% endblock %}
+
+
+</div>
+
+
+
+
+
+{% endblock %}

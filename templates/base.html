@@ -18,6 +18,8 @@
   {% include 'navbar.html' %}
   <br />
   <div class="container-fluid">
+    <!-- {% include 'toasts/toast-message.html' %} -->
+
   <!-- Stack the columns on mobile by making one full-width and the other half-width -->
   <div class="row">
     <div class="col-md-9">
@@ -26,15 +28,19 @@
       {% endblock %}
     </div>
 
+
     <div style="position: absolute; right: 0;" class="col-3 col-md-3">
 
-      {% include 'form/login-form.html' %}
-      {% include 'form/register-form.html' %}
+      {% if not g.user %}
 
+        {% include 'form/login-form.html' %}
+        {% include 'form/register-form.html' %}
+
+      {% endif %}
     </div>
   </div>
 
-  </div>
+  </div>  
 
   <!-- Optional JavaScript; choose one of the two! -->
 

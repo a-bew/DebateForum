@@ -8,13 +8,14 @@
 
 ## Set up version control
 
-``` 
+```
  git config --global user.name "Your Name"
  git config --global user.email "you@youraddress.com"
  git config --global push.default matching
  git config --global alias.co checkout
  git init
 ```
+
 ## Install MySQL locally - use the following links to get started
 
 Mac/Ubuntu installation guide; https://flaviocopes.com/mysql-how-to-install/
@@ -81,7 +82,7 @@ Mac/Ubuntu installation guide; https://flaviocopes.com/mysql-how-to-install/
     Table: Tag
     Columns: id(pk), Title
 
-    Table: ItemTag
+    Table: ClaimTag
     Columns: (claim_id, tag_id)(pk), createdAt, updatedAt, claim_id(fk), tag_id(fk)
 
     NB: Claims can be related to another(one or more) as opposed to equivalent
@@ -93,7 +94,9 @@ Mac/Ubuntu installation guide; https://flaviocopes.com/mysql-how-to-install/
     Columns: id(pk), createdAt, updatedAt, type(ENUM), re_reply_text, (reply_id)(fk)
 
 ```
+
 # Wireframing
+
 '''
-    To draw your wireframes you can use the draw.io service, it’s free.
+To draw your wireframes you can use the draw.io service, it’s free.
 '''

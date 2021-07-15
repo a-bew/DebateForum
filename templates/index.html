@@ -2,25 +2,15 @@
 
 {% block content %}
     
-    <h1>Hello world</h1>
+    <h1>Debate Forum</h1>
 
-    <p>Hello {{ first_name }}</p>
+    {% if g.user %}
+        <!-- <p class="welcome-user">Welcome {{ g.user.username }}</p> -->
+            
+        </div>  
+    {% endif %}
 
-    <p>Hello {{ stuff|safe }}</p>
-
-    {% for topping in favorite_pizza %}
-
-        {% if topping == 41 %}
-            {{ topping + 100}}<br>
-
-        {% else %}
-            {{ topping }}<br>
-
-        {% endif %}
-        {{ topping }}<br>
-    {% endfor %}
-
-    {{ favorite_pizza.0 }}
+    {% include 'lists/topicsTable.html' %}
 
 {% endblock %}
 
@@ -29,6 +19,25 @@
 <script src="{{ url_for('static', filename='js/script.js')}}"></script>
 
 <script>
+    //   document.getElementById(".only-user").style.display = 'none';  
+      // Display All Topics
+
+    //   fetch("/api/all-topics", {
+    //         method: "get",
+    //         headers: {
+    //           "Content-Type": "application/json"
+    //         },
+    //         // body:JSON.stringify({username, password})
+    //       }).then(function(response) 
+    //     {
+
+    //       return response.json();
+    //     }).then(function(response) 
+    //     {
+    //         // Append Topics
+    //        console.log(response);
+    //     })
+
 
 </script>
 

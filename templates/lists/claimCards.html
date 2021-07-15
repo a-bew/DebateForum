@@ -1,0 +1,394 @@
+
+<div class="">
+  <!-- Designed to Handle Reply only -->
+  <form class="reply-box ms-2" style="display: none;">
+    <div style="display: flex; flex-direction: row; ",>
+  
+      <div class="col-md-1"></div>
+      <div  class="col-md-11" style="width: 90%;">
+        <div class="col-md-12" >
+          <!-- <label for="id_form-0-common_name">Common Name:</label> -->
+          <textarea type="text" class="form-control" id="exampleFormControlInput1" placeholder="Reply Here"></textarea> 
+        </div>
+
+        <div  class="mt-3" style="float: left;" >
+            
+            <span class="badge bg-primary"><a onclick="" style="cursor: pointer;">Cancel</a></span>
+      
+            <span class="badge bg-primary ms-1"><a onclick="" style="cursor: pointer;">Submit</a></span>
+      
+          </div>
+  
+        <div class="col-md-3"  style="float: right;">
+          <select class="form-select form-select-sm " style="display: inline;" aria-label=".form-select-sm example">
+            <option selected>Select reply type</option>
+            <option value="1">CLARIFICATION</option>
+            <option value="2">SUPPORTING ARGUMENT</option>
+            <option value="3">COUNTERARGUMENT</option>
+          </select>
+        
+        </div>
+      
+      </div>
+    
+    </div>
+  
+      <!-- <div style="display: flex; flex-direction: row;"  class="mt-3" >
+        <div class="col-md-1"></div>
+    
+        <div style="flex-direction: row; justify-content:right; display: flex; " class="col-md-10">
+          
+          <span class="badge bg-primary"><a onclick="" style="cursor: pointer;">Cancel</a></span>
+    
+          <span class="badge bg-primary ms-1"><a onclick="" style="cursor: pointer;">Submit</a></span>
+    
+        </div>
+        
+    
+    </div> -->
+   
+  
+  </form>
+  
+</div>
+
+
+
+<div class="">
+
+    <!-- Design To Handle Reply Text -->
+
+  <div class="reply-text-quote ms-2 "  style="display: none;">
+    <div style="display: flex; flex-direction: row; ",> 
+  
+      <div class="col-md-1"></div>
+      <div  class="col-md-11 card-header" style="width: 90%; border-radius: 25px;">  
+        <div class="col-md-12">Author: Walker</div>
+        <div class="col-md-12"  >
+          <!-- <label for="id_form-0-common_name">Common Name:</label> -->
+          <!-- <textarea type="text" class="form-control" id="exampleFormControlInput1" placeholder="Reply Here"></textarea> -->
+          <p >Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nihil sit laboriosam, blanditiis perspiciatis fugit eligendi numquam unde autem ad, dolore, repellat minus? Dicta id repudiandae molestiae sequi laudantium eos cupiditate.</p>
+        </div>
+        <div class="col-md-3"  style="float: right;">        
+        </div>      
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- claim_id, from_user, to_user, type, reply_text -->
+ <div class="" id="claims-container">
+    <ol class="breadcrumb my-2">
+      <!-- <li class="breadcrumb-item active">Boards</li> -->
+    </ol>
+
+    {% for claim in claims %}
+
+        <div class="card border-light mb-3" style="margin-right: 10;" id="claim-card" id ="claim-{{claim.claim_id}}">
+            <div class="card-header" style="display: flex; flex-direction: row; justify-content: space-between;">
+                <span>{{claim.claim_heading}}</span>
+                <span>{{claim.claim_createdAt}}</span>
+            </div>
+            <div class="card-body">
+            <!-- <h5 class="card-title">Light card title</h5> -->
+            <p class="card-text">{{claim.claim_message}}</p>
+            </div>
+            <div id="reply-section-{{claim.claim_id}}">
+
+              {% if claim.user_id == g.user.id %}
+
+                <span class="badge bg-primary ms-3" ><a rel = {{g.user.id}} onclick="" style="cursor: pointer;">Edit</a></span>
+      
+              {% endif %}
+
+              <span class="badge bg-primary"><a 
+                      data-claim_id = {{claim.claim_id}}
+                      id = {{claim.claim_id}} 
+                      data-from_user = {{g.user.id}} 
+                      data-to_user = {{claim.user_id}}  
+                      onclick="showReplyBox(this)" 
+                      style="cursor: pointer;">Reply
+                  </a>
+              </span>
+
+              <span id = "view_all_{{claim.claim_id}}" onclick="ViewAllReplies(this)"  class="badge bg-primary ms-1 m-3 " style="align-self: flex-end; float: right;"><a onclick="" style="cursor: pointer;">View Replies</a></span>
+
+              
+            </div>
+        </div>
+
+    {% endfor %}
+  </div>
+
+  <script>
+
+      let container = document.querySelector("#claims-container");
+      
+      let claimCard = document.querySelector("#claim-card");
+
+      let replyTextQuote = document.querySelectorAll(".reply-text-quote");
+
+      // let replySection = document.querySelector("#reply-section")
+
+      let replyBox = document.querySelectorAll(".reply-box");
+
+      let newForm = "";
+
+      const insertAfter = (newNode, existingNode)=>{
+          existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling)
+      }
+
+      const hideClaim_EditReplyDiv = (replySection)=>{
+        replySection.style.display = "none";       
+      }
+
+      const showClaim_EditReplyDiv = (replySection)=>{
+        replySection.style.display = "block";       
+      }
+
+      const removeClaimReply = (node) =>{
+        node.remove()
+      }
+
+      const showReplyBox = (e)=>{
+
+        console.log("target.id", e.id)
+
+        const id  = e.id;
+        const claimRepy = document.getElementById(""+e.id);
+        const claim_id = claimRepy.dataset.claim_id; 
+        const from_user = claimRepy.dataset.from_user;
+        const to_user = claimRepy.dataset.to_user;
+        
+        const reply_form_id = 0
+
+        console.log(e.id, claim_id, from_user, to_user);
+
+        replyBox[0].style.display = "block";
+
+        newForm = replyBox[0].cloneNode(true);
+
+        replyBox[0].style.display = "none";
+        
+
+        // newForm.setAttribute("id", id);
+
+        // newForm.setAttribute("data-reply_form_id", reply_form_id);
+
+        // newForm.setAttribute("data-claim_id", claim_id);
+        // newForm.setAttribute("data-from_user", from_user);
+        // newForm.setAttribute("data-to_user", to_user);
+
+
+
+        // console.log("claimRepy.parentNode.parentNode[0].id",claimRepy.parentNode.parentNode.getAttribute("id"))
+
+        // const replySection  = claimRepy.parentNode.parentNode;
+
+        // const replySection = document.getElementById(claimRepy.parentNode.parentNode[0].id)
+
+        // container.insertBefore(newForm, addButton)
+
+        const replySection = document.getElementById(`reply-section-${id}`);
+
+        insertAfter(newForm, replySection)
+
+        hideClaim_EditReplyDiv(replySection)       
+
+        const replyHandle = document.getElementById(`cancel-btn-${id}-${reply_form_id}`);
+
+        replySection.nextSibling.children[0].children[1].children[0].children[0].setAttribute("id",`cancel-btn-${id}-${reply_form_id}`);
+
+
+        console.log(replySection.nextSibling.children[0].children[1].children[1].children[0])
+
+        // const ClaimById = document.getElementById(`claim-${id}`);
+
+        var children = replySection.parentNode.children;
+       
+        for (var i = 0; i < children.length; i++) {
+          if (i > 3){
+                showClaim_EditReplyDiv(children[i]);
+              }
+        }
+
+        
+        replySection.nextSibling.children[0].children[1].children[1].children[0].addEventListener('click', function (event) {
+
+        event.preventDefault();
+        showClaim_EditReplyDiv(replySection);
+
+        for (var i = 0; i < children.length; i++) {
+          if (i > 3){
+            hideClaim_EditReplyDiv(children[i]);
+              }
+        }
+        replySection.nextSibling.remove();
+
+
+})
+
+        const submitNode = replySection.nextSibling.children[0].children[1].children[1].children[1];
+
+        submitNode.addEventListener('click', function (event) {
+          event.preventDefault();
+
+          const reply_text = replySection.nextSibling.children[0].children[1].children[0].children[0];
+
+          console.log(reply_text.value)
+
+
+          const select = replySection.nextSibling.children[0].children[1].children[2].children[0];
+
+          var reply_type = select.options[select.selectedIndex].value;
+
+          // console.log(event)
+
+          const response = submitReply(claim_id, from_user, to_user, reply_type, reply_text)
+
+          // Started
+          // const replySection  = document.getElementById(`reply-section-${claim_id}`);
+
+          replyTextQuote[0].style.display = "block";
+
+          newReplyTextQuote = replyTextQuote[0].cloneNode(true);
+
+          hideClaim_EditReplyDiv(replyTextQuote[0])       
+
+          replyBox[0].style.display = "none";
+
+          newReplyTextQuote.children[0].children[1].children[0].textContent  = reply_type;
+
+          newReplyTextQuote.children[0].children[1].children[1].children[0].textContent  = reply_text.value;
+
+          console.log(newReplyTextQuote.children[0].children[1].children[1])
+
+// replySection.insertBefore(newReplyTextQuote, replySection.firstChild)
+
+          insertAfter(newReplyTextQuote, replySection.nextSibling);
+
+          replySection.nextSibling.remove();
+
+          showClaim_EditReplyDiv(replySection);
+
+// Ended
+
+
+        })
+
+      }
+
+      function submitReply(claim_id, from_user, to_user, type, reply_text) {
+
+          // console.log(claim_id, from_user, to_user, type, reply_text);
+          console.log(reply_text.value)
+
+        return fetch("/postreply", {
+              method: "post",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body:JSON.stringify({claim_id, from_user, to_user, type, reply_text:reply_text.value})
+            }).then(function(response) 
+          {
+            return response.json();
+          })
+          .then(function(response) 
+          {
+            console.log("response", response);
+            return response
+          })
+          // replySection.append(newReplyTextQuote)
+        }
+
+        const ViewAllReplies = (e)=>{
+          const id = e.id.replace("view_all_","");
+          console.log("id", id)
+          return fetch("/get-replies-for-claims", {
+              method: "post",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body:JSON.stringify({id:id})
+            }).then(function(response) 
+          {
+            return response.json();
+          })
+          .then(function(response) 
+          {
+
+            const replySection = document.getElementById(`reply-section-${id}`);
+
+            var children = replySection.parentNode.children;
+
+
+            for (var i = 0; i < children.length; i++) {
+                if (i > 2){
+                  children[i].remove()
+                  // removeClaimReply(children[i]);
+                }
+              }
+            
+
+            console.log("response", response);
+
+
+            const d = (data)=>'<div class="reply-text-quote1 ms-2 ">'
+
+                         + '<div style="display: flex; flex-direction: row; ">'   
+
+                          +  '<div class="col-md-1"></div>'
+
+                           +' <div  class="col-md-11 card-header" style="width: 90%; border-radius: 25px;">' 
+                            + ' <div class="col-md-12">'+data.reply_type+ '</div>'
+                             + '<div class="col-md-12"  >'
+                               + '<p >'+data.reply_text+'</p>'
+                               + '</div>'
+                             + '</div>'
+
+                             + '<div class="col-md-3"  style="float: right;">'  
+
+                             + '</div>'  
+
+                            +'</div>'
+                          + '</div>'
+
+                       + '</div>';
+
+                                
+                       response.data.map((row, index)=>{
+                          replySection.insertAdjacentHTML("afterend",d(row))
+                       })  
+
+            // newReplyTextQuote = replyTextQuote[0].cloneNode(true);
+
+            // hideClaim_EditReplyDiv(replyTextQuote[0])       
+
+            // replyBox[0].style.display = "none";
+
+            // newReplyTextQuote.children[0].children[1].children[0].textContent  = reply_type;
+
+            // newReplyTextQuote.children[0].children[1].children[1].children[0].textContent  = reply_text.value;
+
+            // console.log(newReplyTextQuote.children[0].children[1].children[1])
+
+            // // replySection.insertBefore(newReplyTextQuote, replySection.firstChild)
+
+            // insertAfter(newReplyTextQuote, replySection.nextSibling);
+
+
+            return response
+          })
+        }
+
+    //   function addForm(e) {
+    //     e.preventDefault();
+    //     let newForm = birdForm[0].cloneNode(true);
+    //     let formRegex = RegExp(`form-(\\d){1}-`, 'g');
+    //     container.insertBefore(newForm, addButton)
+
+    //     totalForms.setAttribute('value', `${formNum+1}`)
+		// }
+
+  </script>

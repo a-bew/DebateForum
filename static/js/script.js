@@ -6,8 +6,8 @@
 
     function loginNow() {
         const appdir = '/login';
-        const username = $("#username").val();
-        const password = $("#password").val();
+        const username = $("#username_login").val();
+        const password = $("#password_login").val();
         console.log(email, username, password);
 
         fetch("/login", {
@@ -28,9 +28,9 @@
 
     function submitReg() {
         const appdir = '/register';
-        const email = $('#email').val();
-        const username = $("#username").val();
-        const password = $("#passw").val();
+        const email = $('#email_reg').val();
+        const username = $("#username_reg").val();
+        const password = $("#passw_reg").val();
 
         console.log(email, username, password);
         fetch("/register", {
@@ -47,6 +47,14 @@
         {
 
            console.log(response);
+           $('#email').val("");
+           $("#username").val("");
+           $("#passw").val("");
+   
+           showLogin();
+
+           $('.toast').toast('show');
+
         })
 
 
@@ -80,4 +88,8 @@
         document.getElementById("registerForm").style.display = 'none';
     }
 
-    showLogin();
+    $(document).ready(function(){
+    
+      showLogin();
+
+    });
