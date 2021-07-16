@@ -106,16 +106,20 @@
                       data-claim_id = {{claim.claim_id}}
                       id = {{claim.claim_id}} 
                       data-from_user = {{g.user.id}} 
+                      onclick="ViewAllReplies(this)" 
                       data-to_user = {{claim.user_id}}  
-                      onclick="showReplyBox(this)" 
                       style="cursor: pointer;">Reply
                   </a>
               </span>
+              <!-- onclick="showReplyBox(this)"  -->
 
-              <span id = "view_all_{{claim.claim_id}}" onclick="ViewAllReplies(this)"  class="badge bg-primary ms-1 m-3 " style="align-self: flex-end; float: right;"><a onclick="" style="cursor: pointer;">View Replies</a></span>
+              <!-- <span id = "view_all_{{claim.claim_id}}"   class="badge bg-primary ms-1 m-3 " style="align-self: flex-end; float: right;"><a onclick="" style="cursor: pointer;">View Replies</a></span> -->
+              <!-- onclick="ViewAllReplies(this)" -->
 
-              <div></div>
             </div>
+
+            <div id="reply_for_{{claim.claim_id}}"></div>           
+
         </div>
 
     {% endfor %}
@@ -153,17 +157,17 @@
 
       const showReplyBox = (e)=>{
 
-        console.log("target.id", e.id)
+        console.log("target.id", e)
 
-        const id  = e.id;
-        const claimRepy = document.getElementById(""+e.id);
+        const id  = e;
+        const claimRepy = document.getElementById(""+e);
         const claim_id = claimRepy.dataset.claim_id; 
         const from_user = claimRepy.dataset.from_user;
         const to_user = claimRepy.dataset.to_user;
         
         const reply_form_id = 0
 
-        console.log(e.id, claim_id, from_user, to_user);
+        console.log(e, claim_id, from_user, to_user);
 
         replyBox[0].style.display = "block";
 
@@ -200,7 +204,6 @@
 
         replySection.nextSibling.children[0].children[1].children[0].children[0].setAttribute("id",`cancel-btn-${id}-${reply_form_id}`);
 
-
         console.log(replySection.nextSibling.children[0].children[1].children[1].children[0])
 
         // const ClaimById = document.getElementById(`claim-${id}`);
@@ -209,25 +212,25 @@
        
         for (var i = 0; i < children.length; i++) {
           if (i > 3){
-                showClaim_EditReplyDiv(children[i]);
-              }
+              showClaim_EditReplyDiv(children[i]);
+          }
         }
-
         
         replySection.nextSibling.children[0].children[1].children[1].children[0].addEventListener('click', function (event) {
 
-        event.preventDefault();
-        showClaim_EditReplyDiv(replySection);
+          showClaim_EditReplyDiv(replySection);
 
-        for (var i = 0; i < children.length; i++) {
-          if (i > 3){
-            hideClaim_EditReplyDiv(children[i]);
-              }
-        }
-        replySection.nextSibling.remove();
+          for (var i = 0; i < children.length; i++) {
+            if (i > 3){
+              hideClaim_EditReplyDiv(children[i]);
+                }
+          }
 
+          replySection.nextSibling.remove();
 
-})
+          event.preventDefault();
+
+        })
 
         const submitNode = replySection.nextSibling.children[0].children[1].children[1].children[1];
 
@@ -250,23 +253,21 @@
           // Started
           // const replySection  = document.getElementById(`reply-section-${claim_id}`);
 
-          replyTextQuote[0].style.display = "block";
+          // replyTextQuote[0].style.display =  "block";
 
-          newReplyTextQuote = replyTextQuote[0].cloneNode(true);
+          // newReplyTextQuote = replyTextQuote[0].cloneNode(true);
 
-          hideClaim_EditReplyDiv(replyTextQuote[0])       
+          // hideClaim_EditReplyDiv(replyTextQuote[0])       
 
-          replyBox[0].style.display = "none";
+          // replyBox[0].style.display = "none";
 
-          newReplyTextQuote.children[0].children[1].children[0].textContent  = reply_type;
+          // newReplyTextQuote.children[0].children[1].children[0].textContent  = reply_type;
 
-          newReplyTextQuote.children[0].children[1].children[1].children[0].textContent  = reply_text.value;
+          // newReplyTextQuote.children[0].children[1].children[1].children[0].textContent  = reply_text.value;
 
-          console.log(newReplyTextQuote.children[0].children[1].children[1])
+          // console.log(newReplyTextQuote.children[0].children[1].children[1])
 
-// replySection.insertBefore(newReplyTextQuote, replySection.firstChild)
-
-          insertAfter(newReplyTextQuote, replySection.nextSibling);
+          // insertAfter(newReplyTextQuote, replySection.nextSibling);
 
           replySection.nextSibling.remove();
 
@@ -296,14 +297,18 @@
           })
           .then(function(response) 
           {
+            ViewAllReplies(claim_id, false)
             console.log("response", response);
             return response
+          }).catch(()=>{
+            ViewAllReplies(claim_id, false)
           })
           // replySection.append(newReplyTextQuote)
         }
 
-        const ViewAllReplies = (e)=>{
-          const id = e.id.replace("view_all_","");
+        const ViewAllReplies = (e, showTextBox=true)=>{
+          // const id = e.id.replace("view_all_","");
+          const id = e.id || e;
           console.log("id", id)
           return fetch("/get-replies-for-claims", {
               method: "post",
@@ -322,6 +327,9 @@
 
             const viewAllButton = document.getElementById(`view_all_${id}`);
 
+            const viewAllproblem = document.getElementById(`reply_for_${id}`);
+
+            
             var children = replySection.parentNode.children;
 
             // for (var i = 0; i < children.length; i++) {
@@ -334,36 +342,68 @@
             console.log("response", response);
 
 
-            const d = (data)=>'<div class="reply-text-quote1 ms-2 ">'
+            const d = (data)=>`<div class="reply-text-quote1 ms-2 ">
 
-                         + '<div style="display: flex; flex-direction: row; ">'   
+                         <div style="display: flex; flex-direction: row; ">
 
-                          +  '<div class="col-md-1"></div>'
+                          <div class="col-md-1"></div>
 
-                           +' <div  class="col-md-11 card-header" style="width: 90%; border-radius: 25px;">' 
-                            + ' <div class="col-md-12">'+data.reply_type+ '</div>'
-                             + '<div class="col-md-12"  >'
-                               + '<p >'+data.reply_text+'</p>'
-                               + '</div>'
-                             + '</div>'
+                           <div  class="col-md-11 card-header" style="width: 90%; border-radius: 25px;"> 
+                            <div class="col-md-12">${data.reply_type}</div>
+                             <div class="col-md-12"  >
+                               <p >${data.reply_text}</p>
+                               </div>
 
-                             + '<div class="col-md-3"  style="float: right;">'  
 
-                             + '</div>'  
 
-                            +'</div>'
-                          + '</div>'
 
-                       + '</div>';
+                               <div class="col-md-12>
+                              <!-- sTART reply replay-->
+                              <div style="position: relative; left: ;" id="reply-section-${data.reply_id}}">
+
+                                <span class="badge bg-primary"><a 
+                                        data-claim_id = ${data.reply_id}
+                                        id = ${data.reply_id} 
+                                        data-from_user = {{g.user.id}} 
+                                        onclick="ViewAllReReplies(this)" 
+                                        data-to_user = ${data.reply_authored_by}  
+                                        style="cursor: pointer;">Reply
+                                    </a>
+                                </span>
+                                <!-- onclick="showReplyBox(this)"  -->
+
+                                <!-- <span id = "view_all_rereply_${data.reply_id}" class="badge bg-primary ms-1 m-3 " style="align-self: flex-end; float: right;"><a onclick="" style="cursor: pointer;">View Replies</a></span> -->
+                                <!-- onclick="ViewAllReplies(this)" -->
+
+                              </div>
+
+                              <div id="re_reply_for_${data.reply_id}"></div>           
+
+                              <!-- Stop reply replay-->
+                            </div>            
+
+
+                             </div>
+                            
+                            </div>
+
+                       </div>`;
 
                     let elm = '';                                
-                       response.data.map((row, index)=>{
+                       (response.data.reverse()).map((row, index)=>{
                           // replySection.insertAdjacentHTML("afterend",d(row))
                           elm+=d(row)
                        })  
 
-                       viewAllButton.nextSibling.innerHTML = elm;
+                       viewAllproblem.innerHTML = elm;
 
+                      //  viewAllButton.parentNode.nextSibling.innerHTML = elm;
+
+                       console.log(viewAllproblem)
+
+                       showTextBox && showReplyBox(id)
+                      // replySection.nextSibling.innerHTML = elm;
+                      // console.log(viewAllButton.parentNode.getElementByTagName("span"));
             // newReplyTextQuote = replyTextQuote[0].cloneNode(true);
 
             // hideClaim_EditReplyDiv(replyTextQuote[0])       
@@ -382,6 +422,9 @@
 
 
             return response
+          }).catch(()=>{
+            showTextBox && showReplyBox(id)
+
           })
         }
 
@@ -394,4 +437,126 @@
     //     totalForms.setAttribute('value', `${formNum+1}`)
 		// }
 
+
+    const re_Replies = (e, showTextBox=true)=>{
+          // const id = e.id.replace("view_all_","");
+          const id = e.id || e;
+          console.log("id", id)
+          return fetch("/get-rereply-for-reply", {
+              method: "post",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body:JSON.stringify({id:id})
+            }).then(function(response) 
+          {
+            return response.json();
+          })
+          .then(function(response) 
+          {
+
+            const replySection = document.getElementById(`reply-section-${id}`);
+
+            const viewAllButton = document.getElementById(`view_all_${id}`);
+
+            const viewAllproblem = document.getElementById(`reply_for_${id}`);
+
+            
+            var children = replySection.parentNode.children;
+
+            // for (var i = 0; i < children.length; i++) {
+            //     if (i > 2){
+            //       children[i].remove()
+            //     }
+            //   }
+            
+
+            console.log("response", response);
+
+
+            const d = (data)=>`<div class="reply-text-quote1 ms-2 ">
+
+                         <div style="display: flex; flex-direction: row; ">
+
+                          <div class="col-md-1"></div>
+
+                           <div  class="col-md-11 card-header" style="width: 90%; border-radius: 25px;"> 
+                            <div class="col-md-12">${data.reply_type}</div>
+                             <div class="col-md-12"  >
+                               <p >${data.reply_text}</p>
+                               </div>
+
+
+
+
+                               <div class="col-md-12>
+                              <!-- sTART reply replay-->
+                              <div style="position: relative; left: ;" id="reply-section-${data.reply_id}}">
+
+                                <span class="badge bg-primary"><a 
+                                        data-claim_id = ${data.reply_id}
+                                        id = ${data.reply_id} 
+                                        data-from_user = {{g.user.id}} 
+                                        onclick="ViewAllReReplies(this)" 
+                                        data-to_user = ${data.reply_authored_by}  
+                                        style="cursor: pointer;">Reply
+                                    </a>
+                                </span>
+                                <!-- onclick="showReplyBox(this)"  -->
+
+                                <!-- <span id = "view_all_rereply_${data.reply_id}" class="badge bg-primary ms-1 m-3 " style="align-self: flex-end; float: right;"><a onclick="" style="cursor: pointer;">View Replies</a></span> -->
+                                <!-- onclick="ViewAllReplies(this)" -->
+
+                              </div>
+
+                              <div id="re_reply_for_${data.reply_id}"></div>           
+
+                              <!-- Stop reply replay-->
+                            </div>            
+
+
+                             </div>
+                            
+                            </div>
+
+                       </div>`;
+
+                    let elm = '';                                
+                       (response.data.reverse()).map((row, index)=>{
+                          // replySection.insertAdjacentHTML("afterend",d(row))
+                          elm+=d(row)
+                       })  
+
+                       viewAllproblem.innerHTML = elm;
+
+                      //  viewAllButton.parentNode.nextSibling.innerHTML = elm;
+
+                       console.log(viewAllproblem)
+
+                       showTextBox && showReplyBox(id)
+                      // replySection.nextSibling.innerHTML = elm;
+                      // console.log(viewAllButton.parentNode.getElementByTagName("span"));
+            // newReplyTextQuote = replyTextQuote[0].cloneNode(true);
+
+            // hideClaim_EditReplyDiv(replyTextQuote[0])       
+
+            // replyBox[0].style.display = "none";
+
+            // newReplyTextQuote.children[0].children[1].children[0].textContent  = reply_type;
+
+            // newReplyTextQuote.children[0].children[1].children[1].children[0].textContent  = reply_text.value;
+
+            // console.log(newReplyTextQuote.children[0].children[1].children[1])
+
+            // // replySection.insertBefore(newReplyTextQuote, replySection.firstChild)
+
+            // insertAfter(newReplyTextQuote, replySection.nextSibling);
+
+
+            return response
+          }).catch(()=>{
+            showTextBox && showReplyBox(id)
+
+          })
+        }
   </script>
