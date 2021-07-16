@@ -173,6 +173,57 @@ def postAReply():
     except Exception as e:
         return jsonify({error: e.with_traceback()}), 500
 
+# 
+@app.route('/postrereply', methods=["GET", "POST"])
+def postRereplies():
+    try:
+
+        error = ""
+        if request.method == 'POST':
+            incoming_data = request.json
+            reply_id = incoming_data["reply_id"]
+            from_user = incoming_data['from_user']
+            to_user = incoming_data['to_user']
+            type = incoming_data['re_reply_type']
+            re_reply_text = incoming_data['re_reply_text']
+            print(reply_id, from_user, to_user, type, re_reply_text)
+
+            # Check if user already exist in db
+            # if UserAuth.checkAlreadyExist(user_name):
+            response = ReReplies.insert_re_replies(
+                reply_id, from_user, type, re_reply_text)
+            if response:
+                flash("Form Submitted Successfully")
+                # return redirect(url_for("index"))
+                return jsonify({"message": "Form Submitted Successfully", "data": response}), 200
+            else:
+                error = "ReReply not added successfully"
+            return jsonify({"message": error}), 500
+        return jsonify({"msg": "Something went wrong"}), 500
+    except Exception as e:
+        return jsonify({error: e.with_traceback()}), 500
+
+
+@app.route('/get-rereply-for-reply', methods=['GET', "POST"])
+def getReRepliesForReply():
+
+    try:
+        # claim_id, from_user, to_user, type, reply_text
+        incoming_data = request.json
+        reply_id = incoming_data["id"]
+        # topic_id = request.args.get('topic_id')
+        print("reply_id", reply_id)
+        replies = ReReplies.get_rereplies_to_replay(reply_id)
+        if replies:
+            flash("Form Submitted Successfully")
+            # return redirect(url_for("index"))
+            return jsonify({'data': replies, "message": "Form Submitted Successfully"}), 200
+        else:
+            error = "Reply not added retrieved"
+        return jsonify({"message": error}), 500
+
+    except:
+        return jsonify({error: e.with_traceback()}), 500
 
 @app.route('/get-replies-for-claims', methods=["GET", "POST"])
 def getRepliesForClaims():

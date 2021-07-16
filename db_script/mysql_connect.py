@@ -699,7 +699,6 @@ class Replies:
         return c.lastrowid
 
     def get_replies_to_claim(self, claim_id):
-        pass
         c, conn = create_connection()
 
         with conn:
@@ -759,8 +758,42 @@ class ReReplies:
                     type ENUM('EVIDENCE', 'SUPPORT', 'REBUTTAL'),
                     re_reply_text TEXT NOT NULL,
                     FOREIGN KEY (from_user) REFERENCES Users (id),                     
-                    FOREIGN KEY (reply_id) REFERENCES Claims (id)
+                    FOREIGN KEY (reply_id) REFERENCES Replies (id)
                 );
             ''')
-
+#
             print("ReReplies Table created successfully")
+
+    def insert_re_replies(self, reply_id, from_user, type, re_reply_text):
+
+        c, conn = create_connection()
+
+        createdAt = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+        updatedAt = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+
+        with conn:
+            c.execute(
+                '''INSERT INTO ReReplies (createdAt, updatedAt, reply_id, from_user, type, re_reply_text) VALUES (%s, %s, %s, %s, %s, %s);
+                ''', (createdAt, updatedAt, reply_id, from_user, type, re_reply_text)
+            )
+
+            conn.commit()
+            print("Last Row Id", c.lastrowid)
+        return c.lastrowid
+
+    def get_rereplies_to_replay(self, reply_id):
+        c, conn = create_connection()
+
+        with conn:
+            c.execute(
+                ''' SELECT R.id AS reply_id, Rr.re_reply_text AS re_reply_text, Rr.type AS re_reply_type, Rr.from_user AS re_reply_authored_by, Rr.id AS re_reply_id
+                    FROM Replies R LEFT JOIN ReReplies Rr ON R.id = Rr.reply_id
+                    WHERE Rr.reply_id = %s;
+                ''', (reply_id,))
+
+            desc = c.description
+            myresult = c.fetchall()
+            column_names = [col[0] for col in desc]
+            data = [dict(zip(column_names, row)) for row in myresult]
+            print(data)
+            return data
