@@ -2,14 +2,9 @@ from os import error
 from flask import Flask, render_template, flash, request, jsonify, session, g, redirect
 from flask.helpers import url_for
 from flask.json import tag
-from flask_wtf import FlaskForm
 from werkzeug.utils import redirect
-from wtforms import StringField, SubmitField
-from wtforms.fields.core import DateTimeField, IntegerField
-from wtforms.validators import DataRequired
 from werkzeug.security import generate_password_hash, check_password_hash
 from db_script import mysql_connect
-from functools import wraps
 
 # Create a Flask instance
 app = Flask(__name__)
@@ -54,13 +49,6 @@ class Users():
 
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
-
-
-class TopicForm(FlaskForm):
-    topic = StringField("Add New Topic", validators=[DataRequired()])
-    name = StringField("Add New Topic", validators=[DataRequired()])
-    time = DateTimeField(validators=[DataRequired()])
-    submit = SubmitField("Submit")
 
 
 @app.before_request
@@ -173,7 +161,9 @@ def postAReply():
     except Exception as e:
         return jsonify({error: e.with_traceback()}), 500
 
-# 
+#
+
+
 @app.route('/postrereply', methods=["GET", "POST"])
 def postRereplies():
     try:
@@ -181,6 +171,7 @@ def postRereplies():
         error = ""
         if request.method == 'POST':
             incoming_data = request.json
+
             reply_id = incoming_data["reply_id"]
             from_user = incoming_data['from_user']
             to_user = incoming_data['to_user']
@@ -224,6 +215,7 @@ def getReRepliesForReply():
 
     except:
         return jsonify({error: e.with_traceback()}), 500
+
 
 @app.route('/get-replies-for-claims', methods=["GET", "POST"])
 def getRepliesForClaims():

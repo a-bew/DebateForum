@@ -78,7 +78,6 @@ class AdminsTable:
 
             # c.execute('''SET FOREIGN_KEY_CHECKS = 1;''')
 
-
             c.execute(
                 ''' SELECT count(*) FROM information_schema.TABLES WHERE (TABLE_SCHEMA ='DebateForumDB') AND (TABLE_NAME = 'Admins') ''')
             # if the count is 1, then table exists
@@ -234,7 +233,6 @@ class TopicTable:
         # conn = create_connection(db_name)
         #conn.text_factory = bytes
 
-
         with conn:
 
             # c.execute('''SET FOREIGN_KEY_CHECKS = 0''')
@@ -353,6 +351,7 @@ class TopicTable:
 #             ''')
 
 #             print("TopicUsers Table created successfully")
+
 
 class ClaimTable:
     '''
@@ -500,7 +499,6 @@ class ClaimTable:
     #         )
 
 
-
 class TagTable:
 
     def __init__(self):
@@ -609,7 +607,6 @@ class ClaimTagTable:
             ''')
 
             print("ClaimTags Table created successfully")
-
 
     def insert_claim_tag(self, tag_id, claim_id):
         print("tag_id,-------------------------- claim_id", tag_id, claim_id)

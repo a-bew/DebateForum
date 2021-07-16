@@ -1,3 +1,55 @@
+## Preparing For The Project work
+
+##### Install Python 3
+
+    ```
+    On A Mac,install Python 3 by running the command below:
+
+        brew install python3
+
+    To test the installation, enter the following on the Terminal:
+
+        python3 --version
+        Python 3.6.2
+    ```
+
+## Create A Virtual Environment
+
+    ```
+        execute the command below:
+
+        pip3 install virtualenv
+
+        virtualenv venv -p python3
+    ```
+
+##### Since a virtual environment is now created, we will continue to build from within the environment
+
+    ```
+        Enter command as follows:
+
+        mkdir myproject
+        cd myproject
+
+        Activate virtualenv
+
+        source venv/bin/activate
+
+        To deactivate the venv run the command below:
+
+        deactivate
+
+
+    ```
+
+#### NB: Keep environment activated to build app
+
+##### Install the following dependencies to start building
+
+    ```
+         pip install flask mysql-connector-python
+    ```
+
 ## To set flask to listen for changes do the following
 
 ```

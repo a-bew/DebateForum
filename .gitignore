@@ -5,7 +5,7 @@ schema.sql
 config/
 note.txt
 
-*__pycache__/
+*__pycache__
 *.py[cod]
 
 db/__pycache__/
