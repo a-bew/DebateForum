@@ -2,7 +2,7 @@ env/
 create_db.py
 init_db.py
 schema.sql
-config/
+config/__pycache__
 note.txt
 
 *__pycache__

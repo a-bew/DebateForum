@@ -626,6 +626,97 @@ class ClaimTagTable:
             return c.lastrowid
 
 
+class RepliesLinkingClaimsReReplies:
+    def __init__(self):
+        self.create_table()
+
+    def create_table(self):
+        """
+            create table RepliesLinkingClaimsReReplies, 
+        """
+        c, conn = create_connection()
+
+        # conn = create_connection(db_name)
+        #conn.text_factory = bytes
+
+        with conn:
+            #             c.execute('''SET FOREIGN_KEY_CHECKS = 0''')
+            #             c.execute('''DROP TABLE IF EXISTS Replies;''')
+            #             c.execute('''ALTER TABLE Replies
+            # DROP FOREIGN KEY from_user;''')
+            #             c.execute('''ALTER TABLE Replies
+            # DROP FOREIGN KEY claim_id;''')
+
+            #             c.execute('''SET FOREIGN_KEY_CHECKS = 1;''')
+
+            # c.execute('''DROP TABLE IF EXISTS Replies;''')
+            c.execute(
+                ''' SELECT count(*) FROM information_schema.TABLES WHERE (TABLE_SCHEMA ='DebateForumDB') AND (TABLE_NAME = 'RepliesLinkingClaimsReReplies') ''')
+
+            # if the count is 1, then table exists
+            if c.fetchone()[0] > 0:
+                #print('Table exists.')
+                return True
+
+            # c.execute('''SET FOREIGN_KEY_CHECKS = 1;''')
+
+            c.execute('''CREATE TABLE RepliesLinkingClaimsReReplies (
+                    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+                    claim_id INTEGER NOT NULL,
+                    reply_id INTEGER,
+                    rereply_id INTEGER,
+
+                    createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,                    
+
+                    FOREIGN KEY (claim_id) REFERENCES Claims (id),
+                    FOREIGN KEY (reply_id) REFERENCES Replies (id) on update SET NULL on delete SET NULL,
+                    FOREIGN KEY (rereply_id) REFERENCES ReReplies (id) on update SET NULL on delete SET NULL
+                );
+            ''')
+
+            print("Replies Table created successfully")
+
+    def insert_claim_tag(self, reply_id, claim_id, rereply_id):
+
+        print("tag_id,-------------------------- claim_id",
+              reply_id, claim_id, rereply_id)
+
+        c, conn = create_connection()
+
+        createdAt = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+        updatedAt = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+
+        with conn:
+            c.execute(
+                '''INSERT INTO ClaimTags (createdAt, updatedAt, reply_id, claim_id, rereply_id) VALUES (%s, %s, %s, %s, %s);
+                ''', (createdAt, updatedAt, reply_id, claim_id, rereply_id)
+            )
+
+            conn.commit()
+            print("Last Row Id", c.lastrowid)
+            return c.lastrowid
+
+    def get_repliesLinking_claims_reReplies(self, claim_id):
+        c, conn = create_connection()
+
+        with conn:
+            c.execute(
+                ''' SELECT C.id AS claim_id, R.reply_text AS reply_text, R.type AS reply_type, R.from_user AS reply_authored_by, R.id AS reply_id
+                    FROM Claims C 
+                    LEFT JOIN RepliesLinkingClaimsReReplies RLCR ON C.id = RLCR.claim_id
+                    LEFT JOIN Replies R ON RLCR.reply_id = R.id
+                    JOIN ReReplies RR ON RLCR.reply_id = RR.id;
+                ''', (claim_id,))
+
+            desc = c.description
+            myresult = c.fetchall()
+            column_names = [col[0] for col in desc]
+            data = [dict(zip(column_names, row)) for row in myresult]
+            print(data)
+            return data
+
+
 class Replies:
     def __init__(self):
         self.create_table()
