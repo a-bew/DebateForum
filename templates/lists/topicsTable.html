@@ -1,30 +1,27 @@
-
-
- <div class="container">
+<div class="container">
     <ol class="breadcrumb my-2">
-      <!-- <li class="breadcrumb-item active">Boards</li> -->
-    </ol>
+        <!-- <li class="breadcrumb-item active">Boards</li> --></ol>
     <table class="table">
-      <thead class="thead-inverse">
-        <tr>
-          <th>Topic</th>
-          <th>Claims</th>
-          <th>Replies</th>
-          <th>Last Claims</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for topic in topics %}
-          <tr>
-            <td>
-              <a href="{{ url_for('show_single_topic', user_id=topic.user_id, topic_id=topic.topic_id, topic=topic.topic_name ) }}">{{ topic.topic_name }}</a>
-              <!-- <small class="text-muted d-block">{{ topic.description }}</small> -->
-            </td>
-            <td class="align-middle">0</td>
-            <td class="align-middle">0</td>
-            <td></td>
-          </tr>
-        {% endfor %}
-      </tbody>
+        <thead class="thead-inverse">
+            <tr>
+                <th>Topic</th>
+                <th>Claims</th>
+                <th>Replies</th>
+                <th>Last Claims</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for topic in topics %}
+            <tr>
+                <td>
+                    <a href="{{ url_for('show_single_topic', user_id=topic.user_id, topic_id=topic.topic_id, topic=topic.topic_name ) }}">{{ topic.topic_name }}</a>
+                    <!-- <small class="text-muted d-block">{{ topic.description }}</small> -->
+                </td>
+                <td class="align-middle">0</td>
+                <td class="align-middle">0</td>
+                <td>X</td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
-  </div>
+</div>

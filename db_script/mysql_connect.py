@@ -296,6 +296,29 @@ class TopicTable:
             print(data)
             return data
 
+
+    def delete_topic(self, topic_id):
+        c, conn = create_connection()
+
+        with conn:
+            try:
+                # Check if the topic exists
+                c.execute("SELECT * FROM Topics WHERE id = %s", (topic_id,))
+                existing_topic = c.fetchone()
+
+                if existing_topic:
+                    # If the topic exists, delete it
+                    c.execute("DELETE FROM Topics WHERE id = %s", (topic_id,))
+                    conn.commit()
+                    print(f"Topic with id {topic_id} deleted successfully.")
+                    return True
+                else:
+                    print(f"Topic with id {topic_id} not found.")
+                    return False
+            except Exception as e:
+                print(f"Error deleting topic: {e}")
+                return False
+
     def get_topic_by_user(self, user_id):
         c, conn = create_connection()
 
